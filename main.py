@@ -75,7 +75,7 @@ snd_menubeep = pygame.mixer.Sound('menubeep.wav')
 snd_rocketfire = pygame.mixer.Sound('rocket1.wav')
 snd_rockethit = pygame.mixer.Sound('rocket2.wav')
 snd_bulletfire = pygame.mixer.Sound('machinegun.wav')
-#snd_shotgunfire = pygame.mixer.Sound('shotgun.wav')
+snd_shotgunfire = pygame.mixer.Sound('shotgun.wav')
 snd_bullethit = pygame.mixer.Sound('bullethit.wav')
 snd_beamlazer = pygame.mixer.Sound('beamlaser.wav')
 
