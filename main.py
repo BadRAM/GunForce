@@ -208,7 +208,7 @@ while state != 0:
         if cfg_debug == 1:
             output.blit(spr_smallenemy, [0, 70])
             output.blit(spr_slowenemy, [8, 70])
-            output.blit(spr_enemy, [16, 70])
+            output.blit(spr_enemy, [24, 70])
             
             output.blit(spr_bullet, [0, 180])
             output.blit(spr_bullet, [10, 180])
