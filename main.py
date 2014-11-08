@@ -65,6 +65,8 @@ spr_redupgrade = pygame.image.load('redupgrade.bmp')
 spr_greenupgrade = pygame.image.load('greenupgrade.bmp')
 spr_blueupgrade = pygame.image.load('blueupgrade.bmp')
 spr_yellowupgrade = pygame.image.load('yellowupgrade.bmp')
+spr_enemy = pygame.image.load('enemy.bmp')
+spr_enemy.set_colorkey([255, 255, 255])
 spr_slowenemy = pygame.image.load('slowenemy.bmp')
 spr_slowenemy.set_colorkey([255, 255, 255])
 spr_smallenemy = pygame.image.load('smallenemy.bmp')
@@ -206,6 +208,7 @@ while state != 0:
         if cfg_debug == 1:
             output.blit(spr_smallenemy, [0, 70])
             output.blit(spr_slowenemy, [8, 70])
+            output.blit(spr_enemy, [16, 70])
             
             output.blit(spr_bullet, [0, 180])
             output.blit(spr_bullet, [10, 180])
