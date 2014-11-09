@@ -13,7 +13,7 @@ global state
 state = 1
 
 global ents
-ents = ['player']
+ents = []
 
 #read config file
 config = open("config.ini")
@@ -33,7 +33,8 @@ screen = pygame.display.set_mode(cfg_res)
 config.close()
 
 #sprite & sound imports + colorkeys
-spr_menutext = [text.render('TM 2014 Corrupt Memory studios', 0, [250, 250, 250]),
+spr_menutext = [
+text.render('TM 2014 Corrupt Memory studios', 0, [250, 250, 250]),
 text.render('Start', 0, [250, 250, 250]),
 text.render('Start', 0, [100, 100, 100]),
 text.render('Highscores', 0, [250, 250, 250]),
@@ -95,8 +96,8 @@ def update():
             print "exit button was pressed"
             state = 0
             print state
-        elif event.type == pygame.MOUSEMOTION:
-            continue
+            pygame.quit()
+            #1 / 0 # DIVIDE BY ZERO TO CRASH APPLICATION
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 buttons[0][1] += 1
@@ -134,7 +135,7 @@ class projectile:
         
         #checks for collision with player enemy or projectile
         #and returns the id # of the entity collided with
-        for i in ents:
+        #for i in ents:
         
         pass
     
@@ -164,7 +165,7 @@ class enemy:
 
 class player:
     def __init__(self, startpos, speed, starthealth, startlives):
-        self.rect = [startpos, 16, 16]
+        self.rect = [startpos[0], startpos[1], 16, 16]
         self.speed = speed
         self.health = starthealth
         self.lives = startlives
@@ -178,7 +179,7 @@ class player:
         
 
     def draw(self):
-        output.blit(spr_player, self.pos)
+        output.blit(spr_player, self.rect[:2])
         
         
 class starfield:
@@ -268,7 +269,8 @@ while state != 0:
         update()
         
     if state == 2:# --- initialize game
-        player1 = player([127, 200], 3, 10, 3)
+        #player1 = player([127, 200], 3, 10, 3)
+        ents.append(player([127, 200], 3, 10, 3))
         stars = starfield(50, 1)
         level = 1
         stage = 0 #stage key:   0 = game start
@@ -278,15 +280,19 @@ while state != 0:
         
     while state == 2: # --- game
         # --- game code
-        player1.update()
+        #player1.update()
         stars.update()
+        print ents
+        for i in range(0, len(ents)):
+            ents[i].update()
         
         
         # --- draw code
         stars.draw()
         
-        
-        player1.draw()
+        #player1.draw()
+        for i in range(0, len(ents)):
+            ents[i].draw()
         
         # --- update
         update()
