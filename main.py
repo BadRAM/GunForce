@@ -13,7 +13,7 @@ global state
 state = 1
 
 global ents
-ents = []
+ents = ['player']
 
 #read config file
 config = open("config.ini")
@@ -130,8 +130,13 @@ def update():
     clock.tick(30)
 
 class projectile:
-    def update(self):#checks for collision with player enemy or projectile
-        pass#         and returns the id # of the entity collided with
+    def update(self):
+        
+        #checks for collision with player enemy or projectile
+        #and returns the id # of the entity collided with
+        for i in ents:
+        
+        pass
     
 class bullet(projectile):
     
@@ -159,15 +164,17 @@ class enemy:
 
 class player:
     def __init__(self, startpos, speed, starthealth, startlives):
-        self.pos = startpos
+        self.rect = [startpos, 16, 16]
         self.speed = speed
         self.health = starthealth
         self.lives = startlives
         self.bullets = []
     
     def update(self):
-        self.pos[0] += buttons[0][0] * self.speed
-        self.pos[1] -= buttons[0][1] * self.speed
+        self.rect[0] += buttons[0][0] * self.speed
+        self.rect[1] -= buttons[0][1] * self.speed
+        
+        
         
 
     def draw(self):
@@ -193,7 +200,8 @@ class starfield:
     
     def draw(self):
         for i in self.stars:
-            output.set_at([int(i[0]), int(i[1])], [250, 250, 250]) #could be more efficient
+            output.set_at([int(i[0]), int(i[1])], [250, 250, 250]) 
+            #could be more efficient
 
 
 while state != 0:
