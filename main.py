@@ -128,58 +128,71 @@ def update():
                 buttons[1] = 0
             elif event.key == pygame.K_x:
                 buttons[2] = 0
-    clock.tick(30)
+    clock.tick(60)
 
 class projectile:
-    def update(self):
-        
+    def update(self, entnum, rect):
+        for i in ents:
+            if i != ents[entnum]:
+                if i.rect[0] + i.rect[2] > rect[0]:
+                    if i.rect[0] < rect[0] + rect[2]:
+                        if i.rect[1] + i.rect[3] > rect[1]:
+                            if i.rect[1] < rect[1] + rect[3]:
+                                return [i.ent_type, i.ent_num]
         #checks for collision with player enemy or projectile
         #and returns the id # of the entity collided with
         #for i in ents:
-        
-        pass
+
     
 class bullet(projectile):
     
+    ent_type = 3
     dmg = 3
     
-    def __init__(self, position, direction):
+    def __init__(self, position, direction, entnum):
         self.pos = position
         self.dir = direction
+        self.ent_num = entnum
     
     def update(self):
         self.pos[0] += self.dir[0]
         self.pos[1] += self.dir[1]
-        collide = self.projectile.update()
-        if collide[0] == 'enemy':
+        collide = self.projectile.update(self.entnum, self.rect)
+        if collide == 2:
             enemies[collide[1]].health -= dmg
             
             
     
 class enemy:
+    
+    emt_type = 2
+    
     def __init__(self, sprite, speed, health, weapontype):
         self.sprite = sprite
         self.speed = speed
         self.health = health
         self.weapon = weapontype
 
+
 class player:
-    def __init__(self, startpos, speed, starthealth, startlives):
+    
+    ent_type = 1
+    
+    def __init__(self, entnum, startpos, speed, starthealth, startlives):
+        self.entnum = entnum
         self.rect = [startpos[0], startpos[1], 16, 16]
         self.speed = speed
         self.health = starthealth
         self.lives = startlives
         self.bullets = []
     
-    def update(self):
+    def update(self, entnum):
         self.rect[0] += buttons[0][0] * self.speed
         self.rect[1] -= buttons[0][1] * self.speed
         
-        
-        
-
     def draw(self):
         output.blit(spr_player, self.rect[:2])
+        
         
         
 class starfield:
@@ -269,8 +282,7 @@ while state != 0:
         update()
         
     if state == 2:# --- initialize game
-        #player1 = player([127, 200], 3, 10, 3)
-        ents.append(player([127, 200], 3, 10, 3))
+        ents = [player(0, [127, 200], 1, 10, 3)]
         stars = starfield(50, 1)
         level = 1
         stage = 0 #stage key:   0 = game start
@@ -280,17 +292,15 @@ while state != 0:
         
     while state == 2: # --- game
         # --- game code
-        #player1.update()
+        
         stars.update()
-        print ents
         for i in range(0, len(ents)):
-            ents[i].update()
+            ents[i].update(i)
         
         
         # --- draw code
         stars.draw()
         
-        #player1.draw()
         for i in range(0, len(ents)):
             ents[i].draw()
         
