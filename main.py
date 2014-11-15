@@ -148,29 +148,40 @@ class projectile:
     
 class bullet(projectile):
     
-    ent_type = 3
+    ent_type = "bullet"
     dmg = 3
     
-    def __init__(self, pos, direction):
+    def __init__(self, pos, direction, friendly):
         self.rect = [pos[0], pos[1], 4, 4]
         self.dir = direction
+        self.friendly = friendly
     
     def update(self, entnum):
         self.entnum = entnum
         self.rect[0] += self.dir[0]
         self.rect[1] += self.dir[1]
-        collide = projectile.update(self, self.entnum, self.rect)
-        if collide[0] == 2:
-            enemies[collide[1]].health -= dmg
         
-        if self.rect[1] < -10:
-            ents.remove(self.entnum)
+        collide = projectile.update(self, self.entnum, self.rect)
+        if self.friendly:
+            for i in collide:
+                if i[0] == "enemy":
+                    ents[i[1]].health -= self.dmg
+                    snd_bullethit.play()
+                    ents.pop(self.entnum)
+        elif not self.friendly:
+            for i in collide:
+                if i[0] == "player":
+                    ents[i[1]].health -= self.dmg
+                    ents.pop(self.entnum)
+        
+        elif self.rect[1] < -10:
+            ents.pop(self.entnum)
         elif self.rect[1] > 260:
-            ents.remove(self.entnum)
+            ents.pop(self.entnum)
         elif self.rect[0] < -10:
-            ents.remove(self.entnum)
+            ents.pop(self.entnum)
         elif self.rect[0] > 260:
-            ents.remove(self.entnum)
+            ents.pop(self.entnum)
             
     def draw(self):
         output.blit(spr_bullet, self.rect[:2])
@@ -179,18 +190,41 @@ class bullet(projectile):
     
 class enemy:
     
-    emt_type = 2
+    ent_type = "enemy"
     
-    def __init__(self, sprite, speed, health, weapontype):
+    def __init__(self, rect, sprite, speed, health, weapontype):
+        self.rect = rect
         self.sprite = sprite
         self.speed = speed
         self.health = health
         self.weapon = weapontype
+        self.heat = 180
+        
+    def fire(self):
+        if self.heat == 0:
+            if self.weapon == "gun":
+                pos = [rect[0] + (rect[2] / 2 - 2), rect[1] + rect[3]]
+                ents.append(bullet(pos, [0, 2], 0))
+                self.heat = 120
+        else:
+            self.heat -= 1
+        
+    def update(self, entnum):
+        self.entnum = entnum
+        self.rect[1] += self.speed
+        self.fire()
+        if self.health <= 0:
+            ents.pop(self.entnum)
+        elif self.rect[1] > 260:
+            ents.pop(self.entnum)
+            
+    def draw(self):
+        output.blit(self.sprite, self.rect[:2])
 
 
 class player:
     
-    ent_type = 1
+    ent_type = "player"
     heat = 0
     
     def __init__(self, startpos, speed, starthealth, startlives):
@@ -206,7 +240,7 @@ class player:
         self.rect[1] -= buttons[0][1] * self.speed
         if buttons[1] == 1:
             if self.heat == 0:
-                ents.append(bullet([self.rect[0] + 6, self.rect[1]], [0, -2]))
+                ents.append(bullet([self.rect[0]+6, self.rect[1]], [0,-2], 1))
                 self.heat = 10
         if self.heat > 0:
             self.heat -= 1
@@ -236,8 +270,10 @@ class starfield:
     def draw(self):
         for i in self.stars:
             output.set_at([int(i[0]), int(i[1])], [250, 250, 250])
-            #could be more efficient, may be cause of slowdowns
+            #could be more efficient, may cause slowdowns
 
+def smallenemy(pos):
+    return enemy([pos[0],pos[1],8,8], spr_smallenemy, 1, 5, "gun")
 
 while state != 0:
     if state == 1:
@@ -303,13 +339,16 @@ while state != 0:
         update()
         
     if state == 2:# --- initialize game
-        ents = [player([127, 200], 1, 10, 3)]
+        ents = [player([127, 200], 1, 20, 3)]
         stars = starfield(50, 1)
         level = 1
         stage = 0 #stage key:   0 = game start
         timer = 0 #             1 = game running
         #                       2 = boss stage
         #                       3 = level clear
+        
+        if cfg_debug == 1:
+            ents.append(smallenemy([100, 10]))
         
     while state == 2: # --- game
         # --- game code
