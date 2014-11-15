@@ -132,13 +132,15 @@ def update():
 
 class projectile:
     def update(self, entnum, rect):
+        output = []
         for i in ents:
             if i != ents[entnum]:
                 if i.rect[0] + i.rect[2] > rect[0]:
                     if i.rect[0] < rect[0] + rect[2]:
                         if i.rect[1] + i.rect[3] > rect[1]:
                             if i.rect[1] < rect[1] + rect[3]:
-                                return [i.ent_type, i.ent_num]
+                                output.append([i.ent_type, i.entnum])
+        return output
         #checks for collision with player enemy or projectile
         #and returns the id # of the entity collided with
         #for i in ents:
@@ -149,17 +151,29 @@ class bullet(projectile):
     ent_type = 3
     dmg = 3
     
-    def __init__(self, position, direction, entnum):
-        self.pos = position
+    def __init__(self, pos, direction):
+        self.rect = [pos[0], pos[1], 4, 4]
         self.dir = direction
-        self.ent_num = entnum
     
-    def update(self):
-        self.pos[0] += self.dir[0]
-        self.pos[1] += self.dir[1]
-        collide = self.projectile.update(self.entnum, self.rect)
-        if collide == 2:
+    def update(self, entnum):
+        self.entnum = entnum
+        self.rect[0] += self.dir[0]
+        self.rect[1] += self.dir[1]
+        collide = projectile.update(self, self.entnum, self.rect)
+        if collide[0] == 2:
             enemies[collide[1]].health -= dmg
+        
+        if self.rect[1] < -10:
+            ents.remove(self.entnum)
+        elif self.rect[1] > 260:
+            ents.remove(self.entnum)
+        elif self.rect[0] < -10:
+            ents.remove(self.entnum)
+        elif self.rect[0] > 260:
+            ents.remove(self.entnum)
+            
+    def draw(self):
+        output.blit(spr_bullet, self.rect[:2])
             
             
     
@@ -177,9 +191,9 @@ class enemy:
 class player:
     
     ent_type = 1
+    heat = 0
     
-    def __init__(self, entnum, startpos, speed, starthealth, startlives):
-        self.entnum = entnum
+    def __init__(self, startpos, speed, starthealth, startlives):
         self.rect = [startpos[0], startpos[1], 16, 16]
         self.speed = speed
         self.health = starthealth
@@ -187,8 +201,15 @@ class player:
         self.bullets = []
     
     def update(self, entnum):
+        self.entnum = entnum
         self.rect[0] += buttons[0][0] * self.speed
         self.rect[1] -= buttons[0][1] * self.speed
+        if buttons[1] == 1:
+            if self.heat == 0:
+                ents.append(bullet([self.rect[0] + 6, self.rect[1]], [0, -2]))
+                self.heat = 10
+        if self.heat > 0:
+            self.heat -= 1
         
     def draw(self):
         output.blit(spr_player, self.rect[:2])
@@ -214,8 +235,8 @@ class starfield:
     
     def draw(self):
         for i in self.stars:
-            output.set_at([int(i[0]), int(i[1])], [250, 250, 250]) 
-            #could be more efficient
+            output.set_at([int(i[0]), int(i[1])], [250, 250, 250])
+            #could be more efficient, may be cause of slowdowns
 
 
 while state != 0:
@@ -282,7 +303,7 @@ while state != 0:
         update()
         
     if state == 2:# --- initialize game
-        ents = [player(0, [127, 200], 1, 10, 3)]
+        ents = [player([127, 200], 1, 10, 3)]
         stars = starfield(50, 1)
         level = 1
         stage = 0 #stage key:   0 = game start
