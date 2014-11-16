@@ -4,7 +4,9 @@ import pygame, random
 #SELECT and START cannot be held
 global buttons
 buttons = [[0, 0], 0, 0, 0, 0]
+pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.init()
+pygame.mixer.init(44100, -16, 1, 512)
 pygame.font.init()
 text = pygame.font.Font('PressStart.ttf', 8)
 clock = pygame.time.Clock()
@@ -14,6 +16,9 @@ state = 1
 
 global ents
 ents = []
+
+global dest
+dest = []
 
 #read config file
 config = open("config.ini")
@@ -79,6 +84,7 @@ snd_bulletfire = pygame.mixer.Sound('machinegun.wav')
 snd_shotgunfire = pygame.mixer.Sound('shotgun.wav')
 snd_bullethit = pygame.mixer.Sound('bullethit.wav')
 snd_beamlazer = pygame.mixer.Sound('beamlaser.wav')
+#snd_playerhit = pygame.mixer.Sound('playerhit.wav') <-- make playerhit.wav
 
 
 global output
@@ -167,21 +173,27 @@ class bullet(projectile):
                 if i[0] == "enemy":
                     ents[i[1]].health -= self.dmg
                     snd_bullethit.play()
-                    ents.pop(self.entnum)
+                    #ents.pop(self.entnum)
+                    dest.append(self.entnum)
         elif not self.friendly:
             for i in collide:
                 if i[0] == "player":
                     ents[i[1]].health -= self.dmg
-                    ents.pop(self.entnum)
+                    #ents.pop(self.entnum)
+                    dest.append(self.entnum)
         
         elif self.rect[1] < -10:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
         elif self.rect[1] > 260:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
         elif self.rect[0] < -10:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
         elif self.rect[0] > 260:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
             
     def draw(self):
         output.blit(spr_bullet, self.rect[:2])
@@ -198,11 +210,12 @@ class enemy:
         self.speed = speed
         self.health = health
         self.weapon = weapontype
-        self.heat = 180
+        self.heat = 60
         
     def fire(self):
         if self.heat == 0:
             if self.weapon == "gun":
+                rect = self.rect
                 pos = [rect[0] + (rect[2] / 2 - 2), rect[1] + rect[3]]
                 ents.append(bullet(pos, [0, 2], 0))
                 self.heat = 120
@@ -214,9 +227,11 @@ class enemy:
         self.rect[1] += self.speed
         self.fire()
         if self.health <= 0:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
         elif self.rect[1] > 260:
-            ents.pop(self.entnum)
+            #ents.pop(self.entnum)
+            dest.append(self.entnum)
             
     def draw(self):
         output.blit(self.sprite, self.rect[:2])
@@ -279,7 +294,7 @@ while state != 0:
     if state == 1:
         option = 2
     while state == 1: # --- main menu
-        #display logo + legal text
+        #display logo + false legal text
         output.blit(spr_logo, [25, 20])
         output.blit(spr_menutext[0], [8, 210])
         
@@ -325,6 +340,7 @@ while state != 0:
         if buttons[4] == 1:
             option += 1
             buttons[4] = 0
+            snd_menubeep.play()
         
         if option >= 5:
             option = 2
@@ -356,6 +372,11 @@ while state != 0:
         stars.update()
         for i in range(0, len(ents)):
             ents[i].update(i)
+            
+        list(set(dest)) #remove dupes
+        for i in range(0, len(dest)):
+            ents.pop(dest[i])
+            dest.pop(i)
         
         
         # --- draw code
