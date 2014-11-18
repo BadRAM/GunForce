@@ -145,7 +145,10 @@ class projectile:
                     if i.rect[0] < rect[0] + rect[2]:
                         if i.rect[1] + i.rect[3] > rect[1]:
                             if i.rect[1] < rect[1] + rect[3]:
-                                output.append([i.ent_type, i.entnum])
+                                try:
+                                    output.append([i.ent_type, i.entnum])
+                                except:
+                                    print "failed to get id from collision"
         return output
         #checks for collision with player enemy or projectile
         #and returns the id # of the entity collided with
@@ -162,8 +165,10 @@ class bullet(projectile):
         self.dir = direction
         self.friendly = friendly
     
-    def update(self, entnum):
+    def pre_update(self, entnum):
         self.entnum = entnum
+        
+    def update(self):
         self.rect[0] += self.dir[0]
         self.rect[1] += self.dir[1]
         
@@ -182,7 +187,7 @@ class bullet(projectile):
                     #ents.pop(self.entnum)
                     dest.append(self.entnum)
         
-        elif self.rect[1] < -10:
+        if self.rect[1] < -10:
             #ents.pop(self.entnum)
             dest.append(self.entnum)
         elif self.rect[1] > 260:
@@ -222,8 +227,10 @@ class enemy:
         else:
             self.heat -= 1
         
-    def update(self, entnum):
+    def pre_update(self, entnum):
         self.entnum = entnum
+        
+    def update(self):
         self.rect[1] += self.speed
         self.fire()
         if self.health <= 0:
@@ -248,9 +255,11 @@ class player:
         self.health = starthealth
         self.lives = startlives
         self.bullets = []
-    
-    def update(self, entnum):
+        
+    def pre_update(self, entnum):
         self.entnum = entnum
+        
+    def update(self):
         self.rect[0] += buttons[0][0] * self.speed
         self.rect[1] -= buttons[0][1] * self.speed
         if buttons[1] == 1:
@@ -363,20 +372,31 @@ while state != 0:
         #                       2 = boss stage
         #                       3 = level clear
         
-        if cfg_debug == 1:
-            ents.append(smallenemy([100, 10]))
+        #if cfg_debug == 1:
+        #    ents.append(smallenemy([100, 0]))
         
     while state == 2: # --- game
         # --- game code
         
+        if random.randint(1, 100) == 50:
+            ents.append(smallenemy([random.randint(2, 245), -10]))
+            
+        for i in range(0, len(ents)):
+            ents[i].pre_update(i)
+        
         stars.update()
         for i in range(0, len(ents)):
-            ents[i].update(i)
+            ents[i].update()
             
-        list(set(dest)) #remove dupes
+        dest = list(set(dest)) #remove dupes
+        dest.sort(reverse = True)
         for i in range(0, len(dest)):
-            ents.pop(dest[i])
-            dest.pop(i)
+            #print dest, len(ents), ents[dest[i]]
+            #try:
+            ents.pop(dest[0])
+            dest.pop(0)
+            #except:
+            #    print "failed to pop ent"
         
         
         # --- draw code
