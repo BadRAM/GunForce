@@ -14,6 +14,9 @@ clock = pygame.time.Clock()
 global state
 state = 1
 
+global score
+score = 0
+
 global ents
 ents = []
 
@@ -38,14 +41,17 @@ screen = pygame.display.set_mode(cfg_res)
 config.close()
 
 #sprite & sound imports + colorkeys
-spr_menutext = [
+spr_text = [
 text.render('TM 2014 Corrupt Memory studios', 0, [250, 250, 250]),
 text.render('Start', 0, [250, 250, 250]),
 text.render('Start', 0, [100, 100, 100]),
 text.render('Highscores', 0, [250, 250, 250]),
 text.render('Highscores', 0, [100, 100, 100]),
 text.render('Quit', 0, [250, 250, 250]),
-text.render('Quit', 0, [100, 100, 100])
+text.render('Quit', 0, [100, 100, 100]),
+text.render('Score:', 0, [250, 250, 250]),
+text.render('Lives:', 0, [250, 250, 250]),
+text.render('Hull:', 0, [250, 250, 250]),
 ]
 spr_logo = pygame.image.load('titletext.bmp')
 spr_logo.set_colorkey([0, 0, 0])
@@ -89,6 +95,30 @@ snd_beamlazer = pygame.mixer.Sound('beamlaser.wav')
 
 global output
 output = pygame.Surface([255, 240])
+
+def offset(number, pos):
+    #takes the indice number of a player weapon and generates offset,
+    #then applies offset to pos
+    finaloffset = [0, 8]
+    if number / 2 == number / 2.0:
+        finaloffset[0] = number * -3
+    else:
+        finaloffset[0] = 15 + (number * 3)
+    pos[0] += finaloffset[0]
+    pos[1] += finaloffset[1]
+    return pos
+    
+    
+def padnumber(number, length):
+    #pads a number with zeroes. 
+    #usage: padnumber(1234, 8) ---> "00001234"
+    number = str(number)
+    while len(number) < length:
+        number = '0' + number
+    if len(number) == length:
+        return number
+    else:
+        print 'padding failed'
 
 
 def update():
@@ -136,6 +166,7 @@ def update():
                 buttons[2] = 0
     clock.tick(60)
 
+
 class projectile:
     def update(self, entnum, rect):
         output = []
@@ -154,7 +185,24 @@ class projectile:
         #and returns the id # of the entity collided with
         #for i in ents:
 
+
+class shotgun:
     
+    heat = 0
+    cooldown = 60
+    
+    def fire(self, pos):
+        if self.heat <= 0:
+            snd_shotgunfire.play()
+            ents.append(bullet(pos, [-0.5, -1.2], 1))
+            ents.append(bullet(pos, [0, -1.3], 1))
+            ents.append(bullet(pos, [0.5, -1.2], 1))
+            self.heat = self.cooldown
+            
+    def draw(self, pos):
+        output.blit(spr_shotgun, pos)
+
+
 class bullet(projectile):
     
     ent_type = "bullet"
@@ -248,6 +296,7 @@ class player:
     
     ent_type = "player"
     heat = 0
+    weapons = [shotgun(), shotgun(), shotgun(), shotgun()]
     
     def __init__(self, startpos, speed, starthealth, startlives):
         self.rect = [startpos[0], startpos[1], 16, 16]
@@ -262,15 +311,34 @@ class player:
     def update(self):
         self.rect[0] += buttons[0][0] * self.speed
         self.rect[1] -= buttons[0][1] * self.speed
+        if self.rect[0] < 0:
+            self.rect[0] = 0
+        if self.rect[0] > 172:
+            self.rect[0] = 172
+        if self.rect[1] < 0:
+            self.rect[1] = 0
+        if self.rect[1] > 224:
+            self.rect[1] = 224
+        
         if buttons[1] == 1:
+            for i in range(0, len(self.weapons)):
+                self.weapons[i].fire(offset(i + 1, self.rect[:2]))
             if self.heat == 0:
+                snd_bulletfire.play()
                 ents.append(bullet([self.rect[0]+6, self.rect[1]], [0,-2], 1))
                 self.heat = 10
+        
+        for i in range(0, len(self.weapons)):
+            self.weapons[i].heat -= 1
+            
         if self.heat > 0:
             self.heat -= 1
         
     def draw(self):
         output.blit(spr_player, self.rect[:2])
+        for i in range(0, len(self.weapons)):
+            self.weapons[i].draw(offset(i + 1, self.rect[:2]))
+
         
         
         
@@ -279,7 +347,7 @@ class starfield:
         self.speed = speed
         self.stars = []
         for i in range(0, num):
-            x = random.randint(0, 255)
+            x = random.randint(0, 188)
             y = random.randint(0, 240)
             self.stars.append([x, y])
     
@@ -287,7 +355,7 @@ class starfield:
         for i in range(0, len(self.stars)):
             if self.stars[i][1] > 241:
                 self.stars[i][1] = -2
-                self.stars[i][0] = random.randint(0, 255)
+                self.stars[i][0] = random.randint(0, 188)
             else:
                 self.stars[i][1] += self.speed
     
@@ -305,7 +373,7 @@ while state != 0:
     while state == 1: # --- main menu
         #display logo + false legal text
         output.blit(spr_logo, [25, 20])
-        output.blit(spr_menutext[0], [8, 210])
+        output.blit(spr_text[0], [8, 210])
         
         #sprite test
         if cfg_debug == 1:
@@ -331,20 +399,20 @@ while state != 0:
         
         # display menu text options in correct color
         if option == 2:
-            output.blit(spr_menutext[1], [100, 100])
+            output.blit(spr_text[1], [100, 100])
             output.blit(spr_player, [80, 95])
         else:
-            output.blit(spr_menutext[2], [100, 100])
+            output.blit(spr_text[2], [100, 100])
         if option == 3:
-            output.blit(spr_menutext[3], [100, 115])
+            output.blit(spr_text[3], [100, 115])
             output.blit(spr_player, [80, 110])
         else:
-            output.blit(spr_menutext[4], [100, 115])
+            output.blit(spr_text[4], [100, 115])
         if option == 4:
-            output.blit(spr_menutext[5], [100, 130])
+            output.blit(spr_text[5], [100, 130])
             output.blit(spr_player, [80, 125])
         else:
-            output.blit(spr_menutext[6], [100, 130])
+            output.blit(spr_text[6], [100, 130])
         
         if buttons[4] == 1:
             option += 1
@@ -364,7 +432,7 @@ while state != 0:
         update()
         
     if state == 2:# --- initialize game
-        ents = [player([127, 200], 1, 20, 3)]
+        ents = [player([100, 200], 1, 20, 3)]
         stars = starfield(50, 1)
         level = 1
         stage = 0 #stage key:   0 = game start
@@ -379,7 +447,7 @@ while state != 0:
         # --- game code
         
         if random.randint(1, 100) == 50:
-            ents.append(smallenemy([random.randint(2, 245), -10]))
+            ents.append(smallenemy([random.randint(2, 176), -10]))
             
         for i in range(0, len(ents)):
             ents[i].pre_update(i)
@@ -405,8 +473,14 @@ while state != 0:
         for i in range(0, len(ents)):
             ents[i].draw()
         
+        pygame.draw.rect(output, [50, 50, 50], [188, 0, 70, 240])
+        scoretext = text.render(padnumber(score, 8), 0, [250, 250, 250])
+        output.blit(scoretext, [190, 10])
+        output.blit(spr_text[9], [190, 30])
+        healthtext = text.render(str(ents[0].health), 0, [250, 250, 250])
+        output.blit(healthtext, [230, 40])
+        
         # --- update
         update()
         
 pygame.quit()
-    
