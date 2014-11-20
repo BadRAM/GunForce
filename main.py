@@ -71,6 +71,8 @@ spr_bullet = pygame.image.load('bullet.bmp')
 spr_bullet.set_colorkey([255, 255, 255])
 spr_rocket = pygame.image.load('rocket.bmp')
 spr_rocket.set_colorkey([255, 255, 255])
+spr_specialbullet = pygame.image.load('wavepulse.bmp')
+spr_specialbullet.set_colorkey([255, 255, 255])
 spr_beamlazer = pygame.image.load('beamlazer.bmp')
 spr_beamlazer.set_colorkey([255, 255, 255])
 spr_redupgrade = pygame.image.load('redupgrade.bmp')
@@ -203,6 +205,65 @@ class shotgun:
         output.blit(spr_shotgun, pos)
 
 
+class machinegun:
+    
+    heat = 0
+    cooldown = 10
+    
+    def fire(self, pos):
+        if self.heat <= 0:
+            ents.append(bullet(pos, [0, -2], 1))
+            self.heat = self.cooldown
+            
+    def draw(self, pos):
+        output.blit(spr_machinegun, pos)
+        
+        
+class rocketlauncher:
+    
+    heat = 0
+    cooldown = 60
+    
+    def fire(self, pos):
+        if self.heat <= 0:
+            snd_rocketfire.play()
+            ents.append(rocket(pos))
+            self.heat = self.cooldown
+            
+    def draw(self, pos):
+        output.blit(spr_rocketlauncher, pos)
+        
+        
+class specialgun:
+    
+    heat = 0
+    cooldown = 30
+    
+    def fire(self, pos):
+        if self.heat <= 0:
+            outpos = [pos[0] - 2, pos[1]]
+            ents.append(specialbullet(outpos))
+            self.heat = self.cooldown
+            
+    def draw(self, pos):
+        output.blit(spr_specialgun, pos)
+        
+        
+class valvegun:
+    
+    heat = 0
+    cooldown = 0
+    
+    def fire(self, pos):
+        if self.heat <= 0:
+            direction = [random.randint(-3, 3), random.randint(-3, -1)]
+            ents.append(bullet(pos, direction, 1))
+            self.heat = self.cooldown
+            
+    def draw(self, pos):
+        output.blit(spr_shotgun, pos)
+
+
 class bullet(projectile):
     
     ent_type = "bullet"
@@ -226,43 +287,97 @@ class bullet(projectile):
                 if i[0] == "enemy":
                     ents[i[1]].health -= self.dmg
                     snd_bullethit.play()
-                    #ents.pop(self.entnum)
                     dest.append(self.entnum)
         elif not self.friendly:
             for i in collide:
                 if i[0] == "player":
                     ents[i[1]].health -= self.dmg
-                    #ents.pop(self.entnum)
                     dest.append(self.entnum)
         
         if self.rect[1] < -10:
-            #ents.pop(self.entnum)
             dest.append(self.entnum)
         elif self.rect[1] > 260:
-            #ents.pop(self.entnum)
             dest.append(self.entnum)
         elif self.rect[0] < -10:
-            #ents.pop(self.entnum)
             dest.append(self.entnum)
-        elif self.rect[0] > 260:
-            #ents.pop(self.entnum)
+        elif self.rect[0] > 190:
             dest.append(self.entnum)
             
     def draw(self):
         output.blit(spr_bullet, self.rect[:2])
             
+           
+class rocket(projectile):
+     
+    ent_type = "rocket"
+    dmg = 10
+    speed = 0
+    
+    def __init__(self, pos):
+        self.rect = [pos[0], pos[1], 4, 8]
+    
+    def pre_update(self, entnum):
+        self.entnum = entnum
+        
+    def update(self):
+        self.rect[1] -= self.speed
+        self.speed += 0.1
+        if self.speed > 3:
+            self.speed = 3
+        
+        collide = projectile.update(self, self.entnum, self.rect)
+        for i in collide:
+            if i[0] == "enemy":
+                ents[i[1]].health -= self.dmg
+                snd_rockethit.play()
+                dest.append(self.entnum)
+    
+        if self.rect[1] < -10:
+            dest.append(self.entnum)
             
+    def draw(self):
+        output.blit(spr_rocket, self.rect[:2])
+        
+        
+class specialbullet(projectile):
+     
+    ent_type = "specialbullet"
+    dmg = 0
+    
+    def __init__(self, pos):
+        self.rect = [pos[0], pos[1], 8, 4]
+    
+    def pre_update(self, entnum):
+        self.entnum = entnum
+        
+    def update(self):
+        self.rect[1] -= 2
+        
+        collide = projectile.update(self, self.entnum, self.rect)
+        for i in collide:
+            if i[0] == "bullet":
+                if ents[i[1]].friendly == 0:
+                    dest.append(i[1])
+                    dest.append(self.entnum)
+    
+        if self.rect[1] < -10:
+            dest.append(self.entnum)
+            
+    def draw(self):
+        output.blit(spr_specialbullet, self.rect[:2])
+    
     
 class enemy:
     
     ent_type = "enemy"
     
-    def __init__(self, rect, sprite, speed, health, weapontype):
+    def __init__(self, rect, sprite, speed, health, weapontype, scorebonus):
         self.rect = rect
         self.sprite = sprite
         self.speed = speed
         self.health = health
         self.weapon = weapontype
+        self.score = scorebonus
         self.heat = 60
         
     def fire(self):
@@ -282,10 +397,9 @@ class enemy:
         self.rect[1] += self.speed
         self.fire()
         if self.health <= 0:
-            #ents.pop(self.entnum)
+            #score += self.score
             dest.append(self.entnum)
         elif self.rect[1] > 260:
-            #ents.pop(self.entnum)
             dest.append(self.entnum)
             
     def draw(self):
@@ -296,7 +410,11 @@ class player:
     
     ent_type = "player"
     heat = 0
-    weapons = [shotgun(), shotgun(), shotgun(), shotgun()]
+    weapons = [
+    specialgun(), specialgun(),
+    rocketlauncher(), rocketlauncher(),
+    shotgun(), shotgun(),
+    machinegun(), machinegun()]
     
     def __init__(self, startpos, speed, starthealth, startlives):
         self.rect = [startpos[0], startpos[1], 16, 16]
@@ -365,7 +483,7 @@ class starfield:
             #could be more efficient, may cause slowdowns
 
 def smallenemy(pos):
-    return enemy([pos[0],pos[1],8,8], spr_smallenemy, 1, 5, "gun")
+    return enemy([pos[0],pos[1],8,8], spr_smallenemy, 1, 5, "gun", 100)
 
 while state != 0:
     if state == 1:
@@ -453,19 +571,17 @@ while state != 0:
             ents[i].pre_update(i)
         
         stars.update()
+        print len(ents)
         for i in range(0, len(ents)):
             ents[i].update()
             
         dest = list(set(dest)) #remove dupes
         dest.sort(reverse = True)
         for i in range(0, len(dest)):
-            #print dest, len(ents), ents[dest[i]]
-            #try:
+            if ents[dest[0]].ent_type == "enemy":
+                score += ents[dest[0]].score
             ents.pop(dest[0])
             dest.pop(0)
-            #except:
-            #    print "failed to pop ent"
-        
         
         # --- draw code
         stars.draw()
@@ -479,6 +595,8 @@ while state != 0:
         output.blit(spr_text[9], [190, 30])
         healthtext = text.render(str(ents[0].health), 0, [250, 250, 250])
         output.blit(healthtext, [230, 40])
+        frames = text.render(str(clock.get_fps()), 0, [250, 250, 250])
+        output.blit(frames, [200, 100])
         
         # --- update
         update()
