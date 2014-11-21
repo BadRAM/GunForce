@@ -54,36 +54,54 @@ text.render('Lives:', 0, [250, 250, 250]),
 text.render('Hull:', 0, [250, 250, 250]),
 ]
 spr_logo = pygame.image.load('titletext.bmp')
+spr_logo.convert()
 spr_logo.set_colorkey([0, 0, 0])
 spr_player = pygame.image.load('player.bmp')
+spr_player.convert()
 spr_player.set_colorkey([255, 255, 255])
 spr_machinegun = pygame.image.load('machinegun.bmp')
+spr_machinegun.convert()
 spr_machinegun.set_colorkey([255, 255, 255])
 spr_shotgun = pygame.image.load('shotgun.bmp')
+spr_shotgun.convert()
 spr_shotgun.set_colorkey([255, 255, 255])
 spr_rocketlauncher = pygame.image.load('rocketlauncher.bmp')
+spr_rocketlauncher.convert()
 spr_rocketlauncher.set_colorkey([255, 255, 255])
 spr_lazergun = pygame.image.load('beamlazergun.bmp')
+spr_lazergun.convert()
 spr_lazergun.set_colorkey([255, 255, 255])
 spr_specialgun = pygame.image.load('specialgun.bmp')
+spr_specialgun.convert()
 spr_specialgun.set_colorkey([255, 255, 255])
 spr_bullet = pygame.image.load('bullet.bmp')
+spr_bullet.convert()
 spr_bullet.set_colorkey([255, 255, 255])
 spr_rocket = pygame.image.load('rocket.bmp')
+spr_rocket.convert()
 spr_rocket.set_colorkey([255, 255, 255])
 spr_specialbullet = pygame.image.load('wavepulse.bmp')
+spr_specialbullet.convert()
 spr_specialbullet.set_colorkey([255, 255, 255])
 spr_beamlazer = pygame.image.load('beamlazer.bmp')
+spr_beamlazer.convert()
 spr_beamlazer.set_colorkey([255, 255, 255])
 spr_redupgrade = pygame.image.load('redupgrade.bmp')
+spr_redupgrade.convert()
 spr_greenupgrade = pygame.image.load('greenupgrade.bmp')
+spr_greenupgrade.convert()
 spr_blueupgrade = pygame.image.load('blueupgrade.bmp')
+spr_blueupgrade.convert()
 spr_yellowupgrade = pygame.image.load('yellowupgrade.bmp')
+spr_yellowupgrade.convert()
 spr_enemy = pygame.image.load('enemy.bmp')
+spr_enemy.convert()
 spr_enemy.set_colorkey([255, 255, 255])
 spr_slowenemy = pygame.image.load('slowenemy.bmp')
+spr_slowenemy.convert()
 spr_slowenemy.set_colorkey([255, 255, 255])
 spr_smallenemy = pygame.image.load('smallenemy.bmp')
+spr_smallenemy.convert()
 spr_smallenemy.set_colorkey([255, 255, 255])
 snd_menubeep = pygame.mixer.Sound('menubeep.wav')
 snd_rocketfire = pygame.mixer.Sound('rocket1.wav')
@@ -173,7 +191,7 @@ class projectile:
     def update(self, entnum, rect):
         output = []
         for i in ents:
-            if i != ents[entnum]:
+            if i.ent_type != ents[entnum].ent_type:
                 if i.rect[0] + i.rect[2] > rect[0]:
                     if i.rect[0] < rect[0] + rect[2]:
                         if i.rect[1] + i.rect[3] > rect[1]:
@@ -414,7 +432,8 @@ class player:
     specialgun(), specialgun(),
     rocketlauncher(), rocketlauncher(),
     shotgun(), shotgun(),
-    machinegun(), machinegun()]
+    machinegun(), machinegun(),
+    valvegun(), valvegun()]
     
     def __init__(self, startpos, speed, starthealth, startlives):
         self.rect = [startpos[0], startpos[1], 16, 16]
