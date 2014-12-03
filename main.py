@@ -121,9 +121,9 @@ def offset(number, pos):
     #then applies offset to pos
     finaloffset = [0, 8]
     if number / 2 == number / 2.0:
-        finaloffset[0] = number * -3
+        finaloffset[0] = number * -2.5
     else:
-        finaloffset[0] = 15 + (number * 3)
+        finaloffset[0] = 14.5 + (number * 2.5)
     pos[0] += finaloffset[0]
     pos[1] += finaloffset[1]
     return pos
