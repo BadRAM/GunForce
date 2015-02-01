@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import pygame, random, math
-=======
-import pygame, random
->>>>>>> 92196001204326e5eda40469732670f70a070250
 
 #button state variable, order: axes, A(z) B(x) START(enter) SELECT(shift)
 #SELECT and START cannot be held
@@ -27,24 +23,12 @@ ents = []
 global dest
 dest = []
 
-<<<<<<< HEAD
 #run config.ini
 execfile('config.ini')
-=======
-#read config file
-config = open("config.ini")
-
-cfg_resx = int(config.readline())
-cfg_resy = int(config.readline())
-cfg_res = [cfg_resx, cfg_resy]
-
-cfg_fscreen = config.readline()
->>>>>>> 92196001204326e5eda40469732670f70a070250
 
 if cfg_fscreen == 1:
     cfg_fscreen = pygame.FULLSCREEN
 
-<<<<<<< HEAD
 global screen
 screen = pygame.display.set_mode(cfg_res)
 
@@ -125,90 +109,12 @@ snd_bulletfire = pygame.mixer.Sound(s+'machinegun.wav')
 snd_shotgunfire = pygame.mixer.Sound(s+'shotgun.wav')
 snd_bullethit = pygame.mixer.Sound(s+'bullethit.wav')
 snd_beamlazer = pygame.mixer.Sound(s+'beamlaser.wav')
-=======
-cfg_debug = int(config.readline())
-global screen
-screen = pygame.display.set_mode(cfg_res)
-config.close()
-
-#sprite & sound imports + colorkeys
-spr_text = [
-text.render('TM 2014 Corrupt Memory studios', 0, [250, 250, 250]),
-text.render('Start', 0, [250, 250, 250]),
-text.render('Start', 0, [100, 100, 100]),
-text.render('Highscores', 0, [250, 250, 250]),
-text.render('Highscores', 0, [100, 100, 100]),
-text.render('Quit', 0, [250, 250, 250]),
-text.render('Quit', 0, [100, 100, 100]),
-text.render('Score:', 0, [250, 250, 250]),
-text.render('Lives:', 0, [250, 250, 250]),
-text.render('Hull:', 0, [250, 250, 250]),
-]
-spr_logo = pygame.image.load('titletext.bmp')
-spr_logo.convert()
-spr_logo.set_colorkey([0, 0, 0])
-spr_player = pygame.image.load('player.bmp')
-spr_player.convert()
-spr_player.set_colorkey([255, 255, 255])
-spr_machinegun = pygame.image.load('machinegun.bmp')
-spr_machinegun.convert()
-spr_machinegun.set_colorkey([255, 255, 255])
-spr_shotgun = pygame.image.load('shotgun.bmp')
-spr_shotgun.convert()
-spr_shotgun.set_colorkey([255, 255, 255])
-spr_rocketlauncher = pygame.image.load('rocketlauncher.bmp')
-spr_rocketlauncher.convert()
-spr_rocketlauncher.set_colorkey([255, 255, 255])
-spr_lazergun = pygame.image.load('beamlazergun.bmp')
-spr_lazergun.convert()
-spr_lazergun.set_colorkey([255, 255, 255])
-spr_specialgun = pygame.image.load('specialgun.bmp')
-spr_specialgun.convert()
-spr_specialgun.set_colorkey([255, 255, 255])
-spr_bullet = pygame.image.load('bullet.bmp')
-spr_bullet.convert()
-spr_bullet.set_colorkey([255, 255, 255])
-spr_rocket = pygame.image.load('rocket.bmp')
-spr_rocket.convert()
-spr_rocket.set_colorkey([255, 255, 255])
-spr_specialbullet = pygame.image.load('wavepulse.bmp')
-spr_specialbullet.convert()
-spr_specialbullet.set_colorkey([255, 255, 255])
-spr_beamlazer = pygame.image.load('beamlazer.bmp')
-spr_beamlazer.convert()
-spr_beamlazer.set_colorkey([255, 255, 255])
-spr_redupgrade = pygame.image.load('redupgrade.bmp')
-spr_redupgrade.convert()
-spr_greenupgrade = pygame.image.load('greenupgrade.bmp')
-spr_greenupgrade.convert()
-spr_blueupgrade = pygame.image.load('blueupgrade.bmp')
-spr_blueupgrade.convert()
-spr_yellowupgrade = pygame.image.load('yellowupgrade.bmp')
-spr_yellowupgrade.convert()
-spr_enemy = pygame.image.load('enemy.bmp')
-spr_enemy.convert()
-spr_enemy.set_colorkey([255, 255, 255])
-spr_slowenemy = pygame.image.load('slowenemy.bmp')
-spr_slowenemy.convert()
-spr_slowenemy.set_colorkey([255, 255, 255])
-spr_smallenemy = pygame.image.load('smallenemy.bmp')
-spr_smallenemy.convert()
-spr_smallenemy.set_colorkey([255, 255, 255])
-snd_menubeep = pygame.mixer.Sound('menubeep.wav')
-snd_rocketfire = pygame.mixer.Sound('rocket1.wav')
-snd_rockethit = pygame.mixer.Sound('rocket2.wav')
-snd_bulletfire = pygame.mixer.Sound('machinegun.wav')
-snd_shotgunfire = pygame.mixer.Sound('shotgun.wav')
-snd_bullethit = pygame.mixer.Sound('bullethit.wav')
-snd_beamlazer = pygame.mixer.Sound('beamlaser.wav')
->>>>>>> 92196001204326e5eda40469732670f70a070250
 #snd_playerhit = pygame.mixer.Sound('playerhit.wav') <-- make playerhit.wav
 
 
 global output
 output = pygame.Surface([255, 240])
 
-<<<<<<< HEAD
 def vectro(origin, destination):
     deltaY = destination[1] - origin[1]
     deltaX = destination[0] - origin[0]
@@ -220,8 +126,6 @@ def vectro(origin, destination):
     return [angle, length]
 
 
-=======
->>>>>>> 92196001204326e5eda40469732670f70a070250
 def offset(number, pos):
     #takes the indice number of a player weapon and generates offset,
     #then applies offset to pos
@@ -293,7 +197,6 @@ def update():
     clock.tick(60)
 
 
-<<<<<<< HEAD
 class node:
     def __init__(self, pos, ntype, delay=0):
         self.pos = pos
@@ -301,8 +204,6 @@ class node:
         self.delay = delay
 
 
-=======
->>>>>>> 92196001204326e5eda40469732670f70a070250
 class projectile:
     def update(self, entnum, rect):
         output = []
@@ -505,7 +406,6 @@ class enemy:
     
     ent_type = "enemy"
     
-<<<<<<< HEAD
     def __init__(self, rect, sprite, speed, path, health, weapontype, bonus):
         self.rect = rect
         self.sprite = sprite
@@ -516,16 +416,6 @@ class enemy:
         self.score = bonus
         self.heat = 60
         self.node = 0
-=======
-    def __init__(self, rect, sprite, speed, health, weapontype, scorebonus):
-        self.rect = rect
-        self.sprite = sprite
-        self.speed = speed
-        self.health = health
-        self.weapon = weapontype
-        self.score = scorebonus
-        self.heat = 60
->>>>>>> 92196001204326e5eda40469732670f70a070250
         
     def fire(self):
         if self.heat == 0:
@@ -541,7 +431,6 @@ class enemy:
         self.entnum = entnum
         
     def update(self):
-<<<<<<< HEAD
         #movement
         if self.path[self.node].ntype == 1:
             
@@ -590,21 +479,14 @@ class enemy:
             self.path[self.node].delay -= 1
             
         
-=======
-        self.rect[1] += self.speed
->>>>>>> 92196001204326e5eda40469732670f70a070250
         self.fire()
         if self.health <= 0:
             #score += self.score
             dest.append(self.entnum)
-<<<<<<< HEAD
         try:
             if self.path[self.node] == len(self.path):
                 dest.append(self.entnum)
         except:
-=======
-        elif self.rect[1] > 260:
->>>>>>> 92196001204326e5eda40469732670f70a070250
             dest.append(self.entnum)
             
     def draw(self):
@@ -619,12 +501,7 @@ class player:
     specialgun(), specialgun(),
     rocketlauncher(), rocketlauncher(),
     shotgun(), shotgun(),
-<<<<<<< HEAD
     machinegun(), machinegun()]
-=======
-    machinegun(), machinegun(),
-    valvegun(), valvegun()]
->>>>>>> 92196001204326e5eda40469732670f70a070250
     
     def __init__(self, startpos, speed, starthealth, startlives):
         self.rect = [startpos[0], startpos[1], 16, 16]
@@ -690,7 +567,6 @@ class starfield:
     def draw(self):
         for i in self.stars:
             output.set_at([int(i[0]), int(i[1])], [250, 250, 250])
-<<<<<<< HEAD
             #should be more efficient, may cause slowdowns
 
 def smallenemy(track):
@@ -701,12 +577,6 @@ def smallenemy(track):
             node([100, 100], 0, 180),
             node([100, 300], 0)]
     return enemy(rect, sprite, 1, path, 5, "gun", 100)
-=======
-            #could be more efficient, may cause slowdowns
-
-def smallenemy(pos):
-    return enemy([pos[0],pos[1],8,8], spr_smallenemy, 1, 5, "gun", 100)
->>>>>>> 92196001204326e5eda40469732670f70a070250
 
 while state != 0:
     if state == 1:
@@ -818,15 +688,10 @@ while state != 0:
         output.blit(spr_text[9], [190, 30])
         healthtext = text.render(str(ents[0].health), 0, [250, 250, 250])
         output.blit(healthtext, [230, 40])
-<<<<<<< HEAD
         
         if cfg_debug == 1:
             frames = text.render(str(clock.get_fps()), 0, [250, 250, 250])
             output.blit(frames, [200, 100])
-=======
-        frames = text.render(str(clock.get_fps()), 0, [250, 250, 250])
-        output.blit(frames, [200, 100])
->>>>>>> 92196001204326e5eda40469732670f70a070250
         
         # --- update
         update()
